@@ -2,6 +2,7 @@ import React,{useState} from 'react'
 import { useNavigate, Link } from 'react-router'
 import "../auth.form.scss"
 import { useAuth } from '../hooks/useAuth'
+import LoadingScreen from '../../../components/LoadingScreen'
 
 const Login = () => {
 
@@ -18,14 +19,27 @@ const Login = () => {
     }
 
     if(loading){
-        return (<main><h1>Loading.......</h1></main>)
+        return (
+            <LoadingScreen
+                title="Opening your workspace"
+                subtitle="Checking your session and getting things ready."
+            />
+        )
     }
 
 
     return (
-        <main>
+        <main className="auth-page">
             <div className="form-container">
-                <h1>Login</h1>
+                <div className="auth-brand">
+                    <p className="auth-kicker">AI powered career prep</p>
+                    <h1>Resume Planner</h1>
+                    <p className="auth-tagline">
+                        Turn your resume into sharper interview answers and smarter job-fit insights.
+                    </p>
+                </div>
+
+                <h2>Welcome back</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="input-group">
                         <label htmlFor="email">Email</label>
@@ -42,6 +56,7 @@ const Login = () => {
                     <button className='button primary-button' >Login</button>
                 </form>
                 <p>Don't have an account? <Link to={"/register"} >Register</Link> </p>
+                <p className="auth-credit">Build by Mohd Subhan</p>
             </div>
         </main>
     )

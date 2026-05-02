@@ -4,8 +4,10 @@
     outline: none;
     padding-inline: 1.5rem;
     padding-block: 0.75rem;
-    border-radius: 1rem;
+    border-radius: 0.5rem;
     cursor: pointer;
+    min-height: 44px;
+    font: inherit;
 
     transition: all 0.3s ease-in-out;
 
@@ -16,5 +18,12 @@
 
     &:active{
         transform: scale(0.9);
+    }
+}
+
+@media (max-width: 520px) {
+    .button {
+        width: 100%;
+        padding-inline: 1rem;
     }
 }

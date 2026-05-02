@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import '../style/interview.scss'
 import { useInterview } from '../hooks/useInterview.js'
 import { useNavigate, useParams } from 'react-router'
+import LoadingScreen from '../../../components/LoadingScreen.jsx'
 
 
 
@@ -72,9 +73,10 @@ const Interview = () => {
 
     if (loading || !report) {
         return (
-            <main className='loading-screen'>
-                <h1>Loading your interview plan...</h1>
-            </main>
+            <LoadingScreen
+                title="Loading your interview planner"
+                subtitle="Preparing questions, roadmap, skill gaps, and match score."
+            />
         )
     }
 

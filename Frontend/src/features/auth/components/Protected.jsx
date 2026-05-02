@@ -1,13 +1,19 @@
 import { useAuth } from "../hooks/useAuth";
 import { Navigate } from "react-router";
 import React from 'react'
+import LoadingScreen from "../../../components/LoadingScreen";
 
 const Protected = ({children}) => {
     const { loading,user } = useAuth()
 
 
     if(loading){
-        return (<main><h1>Loading...</h1></main>)
+        return (
+            <LoadingScreen
+                title="Verifying your session"
+                subtitle="Keeping your interview plans private and ready."
+            />
+        )
     }
 
     if(!user){
