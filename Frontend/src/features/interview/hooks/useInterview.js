@@ -23,11 +23,12 @@ export const useInterview = () => {
             setReport(response.interviewReport)
         } catch (error) {
             console.log(error)
+            throw error
         } finally {
             setLoading(false)
         }
 
-        return response.interviewReport
+        return response?.interviewReport
     }
 
     const getReportById = async (interviewId) => {

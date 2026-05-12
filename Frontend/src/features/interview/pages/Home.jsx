@@ -9,14 +9,41 @@ const Home = () => {
     const { loading, generateReport,reports } = useInterview()
     const [ jobDescription, setJobDescription ] = useState("")
     const [ selfDescription, setSelfDescription ] = useState("")
+    const [ resumeName, setResumeName ] = useState("")
+    const [ formError, setFormError ] = useState("")
     const resumeInputRef = useRef()
 
     const navigate = useNavigate()
 
     const handleGenerateReport = async () => {
         const resumeFile = resumeInputRef.current.files[ 0 ]
-        const data = await generateReport({ jobDescription, selfDescription, resumeFile })
-        navigate(`/interview/${data._id}`)
+        setFormError("")
+
+        if (!jobDescription.trim()) {
+            setFormError("Please paste the target job description first.")
+            return
+        }
+
+        if (!resumeFile && !selfDescription.trim()) {
+            setFormError("Upload a resume PDF or add a quick self-description.")
+            return
+        }
+
+        try {
+            const data = await generateReport({ jobDescription, selfDescription, resumeFile })
+            if (data?._id) {
+                navigate(`/interview/${data._id}`)
+            }
+        } catch (error) {
+            const message = error.response?.data?.message || "Could not generate the interview strategy. Please try again."
+            setFormError(message)
+        }
+    }
+
+    const handleResumeChange = (event) => {
+        const file = event.target.files?.[ 0 ]
+        setFormError("")
+        setResumeName(file ? file.name : "")
     }
 
     if (loading) {
@@ -33,8 +60,30 @@ const Home = () => {
 
             {/* Page Header */}
             <header className='page-header'>
+                <span className='page-header__kicker'>AI Interview Prep Workspace</span>
                 <h1>Create Your Custom <span className='highlight'>Interview Plan</span></h1>
-                <p>Let our AI analyze the job requirements and your unique profile to build a winning strategy.</p>
+                <p>Turn a job post, resume, and quick context into a focused prep plan for your next interview.</p>
+                <div className='header-metrics' aria-label='Planner highlights'>
+                    <span>Role-fit analysis</span>
+                    <span>Question strategy</span>
+                    <span>30s draft</span>
+                </div>
+                <div className='workflow-steps' aria-label='Interview plan workflow'>
+                    <div className='workflow-step workflow-step--active'>
+                        <span>1</span>
+                        <p>Job &amp; Profile</p>
+                    </div>
+                    <div className='workflow-line' />
+                    <div className='workflow-step'>
+                        <span>2</span>
+                        <p>Generate Strategy</p>
+                    </div>
+                    <div className='workflow-line' />
+                    <div className='workflow-step'>
+                        <span>3</span>
+                        <p>Review &amp; Prepare</p>
+                    </div>
+                </div>
             </header>
 
             {/* Main Card */}
@@ -51,12 +100,16 @@ const Home = () => {
                             <span className='badge badge--required'>Required</span>
                         </div>
                         <textarea
-                            onChange={(e) => { setJobDescription(e.target.value) }}
+                            onChange={(e) => {
+                                setFormError("")
+                                setJobDescription(e.target.value)
+                            }}
+                            value={jobDescription}
                             className='panel__textarea'
                             placeholder={`Paste the full job description here...\ne.g. 'Senior Frontend Engineer at Google requires proficiency in React, TypeScript, and large-scale system design...'`}
                             maxLength={5000}
                         />
-                        <div className='char-counter'>0 / 5000 chars</div>
+                        <div className='char-counter'>{jobDescription.length} / 5000 chars</div>
                     </div>
 
                     {/* Vertical Divider */}
@@ -81,9 +134,9 @@ const Home = () => {
                                 <span className='dropzone__icon'>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16" /><line x1="12" y1="12" x2="12" y2="21" /><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" /></svg>
                                 </span>
-                                <p className='dropzone__title'>Click to upload or drag &amp; drop</p>
-                                <p className='dropzone__subtitle'>PDF or DOCX (Max 5MB)</p>
-                                <input ref={resumeInputRef} hidden type='file' id='resume' name='resume' accept='.pdf,.docx' />
+                                <p className='dropzone__title'>{resumeName || "Click to upload or drag & drop"}</p>
+                                <p className='dropzone__subtitle'>{resumeName ? "Resume attached" : "PDF only (Max 3MB)"}</p>
+                                <input onChange={handleResumeChange} ref={resumeInputRef} hidden type='file' id='resume' name='resume' accept='.pdf' />
                             </label>
                         </div>
 
@@ -94,7 +147,11 @@ const Home = () => {
                         <div className='self-description'>
                             <label className='section-label' htmlFor='selfDescription'>Quick Self-Description</label>
                             <textarea
-                                onChange={(e) => { setSelfDescription(e.target.value) }}
+                                onChange={(e) => {
+                                    setFormError("")
+                                    setSelfDescription(e.target.value)
+                                }}
+                                value={selfDescription}
                                 id='selfDescription'
                                 name='selfDescription'
                                 className='panel__textarea panel__textarea--short'
@@ -114,7 +171,9 @@ const Home = () => {
 
                 {/* Card Footer */}
                 <div className='interview-card__footer'>
-                    <span className='footer-info'>AI-Powered Strategy Generation &bull; Approx 30s</span>
+                    <span className={`footer-info ${formError ? 'footer-info--error' : ''}`}>
+                        {formError || "AI-Powered Strategy Generation - Approx 30s"}
+                    </span>
                     <button
                         onClick={handleGenerateReport}
                         className='generate-btn'>
@@ -127,25 +186,40 @@ const Home = () => {
             {/* Recent Reports List */}
             {reports.length > 0 && (
                 <section className='recent-reports'>
-                    <h2>My Recent Interview Plans</h2>
+                    <div className='recent-reports__header'>
+                        <div>
+                            <span className='recent-reports__icon'>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-8 0v2" /><circle cx="12" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M2 21v-2a4 4 0 0 1 3-3.87" /></svg>
+                            </span>
+                            <h2>My Recent Interview Plans</h2>
+                        </div>
+                        <button type='button' className='view-all-btn'>View all <span>›</span></button>
+                    </div>
                     <ul className='reports-list'>
                         {reports.map(report => (
                             <li key={report._id} className='report-item' onClick={() => navigate(`/interview/${report._id}`)}>
-                                <h3>{report.title || 'Untitled Position'}</h3>
-                                <p className='report-meta'>Generated on {new Date(report.createdAt).toLocaleDateString()}</p>
-                                <p className={`match-score ${report.matchScore >= 80 ? 'score--high' : report.matchScore >= 60 ? 'score--mid' : 'score--low'}`}>Match Score: {report.matchScore}%</p>
+                                <span className='report-item__icon'>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19V5" /><path d="M9 19V9" /><path d="M14 19v-6" /><path d="M19 19V3" /></svg>
+                                </span>
+                                <div className='report-item__content'>
+                                    <h3>{report.title || 'Untitled Position'}</h3>
+                                    <p className='report-meta'>Generated on {new Date(report.createdAt).toLocaleDateString()}</p>
+                                    <p className={`match-score ${report.matchScore >= 80 ? 'score--high' : report.matchScore >= 60 ? 'score--mid' : 'score--low'}`}>Role-fit analysis</p>
+                                </div>
+                                <span className='report-item__arrow'>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7" /><path d="M7 7h10v10" /></svg>
+                                </span>
                             </li>
                         ))}
                     </ul>
+                    <p className='reports-tip'>
+                        <span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 21h6v-1H9v1Zm3-19a7 7 0 0 0-4.2 12.6c.8.6 1.2 1.4 1.2 2.4h6c0-1 .4-1.8 1.2-2.4A7 7 0 0 0 12 2Z" /></svg>
+                        </span>
+                        Tip: The more details you provide, the more personalized and effective your interview strategy will be.
+                    </p>
                 </section>
             )}
-
-            {/* Page Footer */}
-            <footer className='page-footer'>
-                <a href='#'>Privacy Policy</a>
-                <a href='#'>Terms of Service</a>
-                <a href='#'>Help Center</a>
-            </footer>
         </div>
     )
 }

@@ -11,11 +11,17 @@ const Login = () => {
 
     const [ email, setEmail ] = useState("")
     const [ password, setPassword ] = useState("")
+    const [ error, setError ] = useState("")
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        await handleLogin({email,password})
-        navigate('/')
+        setError("")
+        try {
+            await handleLogin({email,password})
+            navigate('/')
+        } catch (err) {
+            setError(err.response?.data?.message || "Login failed. Please check your email and password.")
+        }
     }
 
     if(loading){
@@ -33,7 +39,7 @@ const Login = () => {
             <div className="form-container">
                 <div className="auth-brand">
                     <p className="auth-kicker">AI powered career prep</p>
-                    <h1>Resume Planner</h1>
+                    <h1>    Interview Planner</h1>
                     <p className="auth-tagline">
                         Turn your resume into sharper interview answers and smarter job-fit insights.
                     </p>
@@ -55,6 +61,7 @@ const Login = () => {
                     </div>
                     <button className='button primary-button' >Login</button>
                 </form>
+                {error && <p className='auth-error'>{error}</p>}
                 <p>Don't have an account? <Link to={"/register"} >Register</Link> </p>
                 <p className="auth-credit">Build by Mohd Subhan</p>
             </div>

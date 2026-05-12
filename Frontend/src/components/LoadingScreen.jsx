@@ -10,7 +10,7 @@ const LoadingScreen = ({
                     <span />
                     <span />
                 </div>
-                <p className="loader-kicker">Resume Planner</p>
+                <p className="loader-kicker">Interview Planner</p>
                 <h1>{title}</h1>
                 <p className="loader-subtitle">{subtitle}</p>
                 <div className="loader-bar" aria-hidden="true">
