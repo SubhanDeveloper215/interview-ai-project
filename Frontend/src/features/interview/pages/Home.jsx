@@ -66,7 +66,7 @@ const Home = () => {
                 <div className='header-metrics' aria-label='Planner highlights'>
                     <span>Role-fit analysis</span>
                     <span>Question strategy</span>
-                    <span>30s draft</span>
+                    <span>Road Map</span>
                 </div>
                 <div className='workflow-steps' aria-label='Interview plan workflow'>
                     <div className='workflow-step workflow-step--active'>
