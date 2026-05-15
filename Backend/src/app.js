@@ -6,7 +6,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: true, // reflects request origin
+    origin: "https://interview-ai-project-1.onrender.com", // reflects request origin
     credentials: true,
   }),
 );
