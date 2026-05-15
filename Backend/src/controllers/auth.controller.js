@@ -87,6 +87,7 @@ async function loginUserController(req, res) {
     httpOnly: true,
     secure: true,
     sameSite: "none",
+    path: "/",
   });
   res.status(200).json({
     message: "User loggedIn successfully.",
